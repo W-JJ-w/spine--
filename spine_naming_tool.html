@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="专业的Spine动画段批量名称生成器，支持多种命名规范，快速生成标准化的动画段名称">
+    <meta name="keywords" content="Spine,动画,命名,批量生成,游戏开发,动画段">
+    <meta name="author" content="@W-JJ-w">
+    <meta property="og:title" content="Spine动画段批量名称生成器">
+    <meta property="og:description" content="专业的Spine动画段批量名称生成器，支持多种命名规范">
+    <meta property="og:type" content="website">
+    <title>Spine动画段批量名称生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 25px;
+            flex: 1;
+        }
+        .card h2 {
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 1.4rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .keyword-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        .keyword-input-container input {
+            flex: 1;
+        }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #556cd6;
+        }
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #4a4a4a;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .keyword-tag {
+            background-color: #f0f5ff;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .keyword-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        #result {
+            min-height: 200px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fafafa;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .examples {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .examples h3 {
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 1rem;
+        }
+        .examples ul {
+            padding-left: 20px;
+        }
+        .examples li {
+            margin-bottom: 5px;
+        }
+        .history-btn {
+            margin-top: 15px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Spine动画段批量名称生成器</h1>
+        <p>优化版命名规则 - 快速生成符合规范的Spine动画段名称，支持批量处理多个关键词</p>
+    </div>
+
+    <div class="main-container">
+        <div class="card">
+            <h2>参数设置</h2>
+
+            <div class="form-group">
+                <label for="trackNumber">起始轨道编号:</label>
+                <input type="number" id="trackNumber" value="1" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="namingType">命名类型:</label>
+                <select id="namingType">
+                    <option value="highlight">高亮动画</option>
+                    <option value="basic">基础动画</option>
+                    <option value="scene">场景动画</option>
+                    <option value="ip">IP嘴形皮肤</option>
+                    <option value="tips">Tips动画</option>
+                    <option value="highlight_tips">高亮+Tips</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="keywordInput">添加关键词:</label>
+                <div class="keyword-input-container">
+                    <input type="text" id="keywordInput" placeholder="例如: dumplings, fish-and-chips">
+                    <button class="btn btn-secondary" id="addKeywordBtn">+ 添加关键词</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>关键词列表:</label>
+                <div id="keywordList" class="keyword-list">
+                    <!-- 关键词标签将动态添加到这里 -->
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="generateBtn">生成名称</button>
+                <button class="btn btn-secondary" id="clearBtn">清空列表</button>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" id="copyBtn">复制结果</button>
+                <button class="btn btn-secondary" id="saveBtn">保存结果</button>
+            </div>
+
+            <div class="examples">
+                <h3>命名规范示例:</h3>
+                <ul id="examplesList">
+                    <li>track1_dumplings_highlight</li>
+                    <li>track1_dumplings_highlight_loop</li>
+                    <li>track1_dumplings_cancel</li>
+                    <li>track1_dumplings_cancel_loop</li>
+                    <li>track2_fish-and-chips_highlight</li>
+                    <li>track3_ice-cream_cancel_loop</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>生成结果</h2>
+            <div id="result"></div>
+            <button class="btn btn-secondary history-btn" id="historyBtn">查看生成历史</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const trackNumberInput = document.getElementById('trackNumber');
+        const namingType = document.getElementById('namingType');
+        const keywordInput = document.getElementById('keywordInput');
+        const addKeywordBtn = document.getElementById('addKeywordBtn');
+        const keywordList = document.getElementById('keywordList');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const historyBtn = document.getElementById('historyBtn');
+        const resultDiv = document.getElementById('result');
+        const examplesList = document.getElementById('examplesList');
+
+        // 数据存储
+        let keywords = [];
+        let generationHistory = JSON.parse(localStorage.getItem('spineNamingHistory')) || [];
+
+        // 获取对应命名类型的状态列表
+        function getStatesForType(type, keyword = '') {
+            const states = {
+                basic: ['hide', 'in', 'stand_loop', 'out'],
+                highlight: ['highlight', 'highlight_loop', 'cancel', 'cancel_loop'],
+                scene: ['in', 'stand_loop', 'out', 'out_loop'],
+                ip: ['quiet', 'talk'],
+                tips: ['in', 'in_loop', 'out', 'out_loop'],
+                highlight_tips: keyword.toLowerCase().includes('tips') ?
+                    ['in', 'in_loop', 'out', 'out_loop'] :
+                    ['highlight', 'highlight_loop', 'cancel', 'cancel_loop']
+            };
+            return states[type] || [];
+        }
+
+        // 获取对应命名类型的示例
+        function getExamplesForType(type) {
+            const examples = {
+                basic: ['hide', 'in', 'stand_loop', 'out'],
+                highlight: [
+                    'track1_dumplings_highlight',
+                    'track1_dumplings_highlight_loop',
+                    'track1_dumplings_cancel',
+                    'track1_dumplings_cancel_loop'
+                ],
+                scene: [
+                    'school_in',
+                    'school_stand_loop',
+                    'school_out',
+                    'school_out_loop'
+                ],
+                ip: [
+                    'zerd_quiet',
+                     'zerd_talk',
+                     'minnie_quiet',
+                     'minnie_talk',
+                     'max_quiet',
+                     'max_talk',
+                     'all_quiet',
+                     'all_talk'
+                ],
+                tips: [
+                    'track1_tips1_in',
+                    'track1_tips1_in_loop',
+                    'track1_tips1_out',
+                    'track1_tips1_out_loop'
+                ],
+                highlight_tips: [
+                    'track1_apple_highlight',
+                    'track1_apple_highlight_loop',
+                    'track1_apple_cancel',
+                    'track1_apple_cancel_loop',
+                    'track2_tips1_in',
+                    'track2_tips1_in_loop',
+                    'track2_tips1_out',
+                    'track2_tips1_out_loop'
+                ]
+            };
+            return examples[type] || [];
+        }
+
+        // 更新示例列表
+        function updateExamples() {
+            const type = namingType.value;
+            const examples = getExamplesForType(type);
+            examplesList.innerHTML = examples.map(example => `<li>${example}</li>`).join('');
+        }
+
+        // 添加关键词
+        function addKeyword() {
+            const input = keywordInput.value.trim();
+            if (!input) return;
+
+            // 支持逗号分隔多个关键词
+            const newKeywords = input.split(',').map(k => k.trim().replace(/\s+/g, '-')).filter(k => k);
+            keywords = [...new Set([...keywords, ...newKeywords])]; // 去重
+            renderKeywords();
+            keywordInput.value = '';
+        }
+
+        // 渲染关键词标签
+        function renderKeywords() {
+            keywordList.innerHTML = '';
+            keywords.forEach((keyword, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'keyword-tag';
+                tag.innerHTML = `
+                    ${keyword}
+                    <span class="remove" data-index="${index}">&times;</span>
+                `;
+                tag.querySelector('.remove').addEventListener('click', () => {
+                    keywords.splice(index, 1);
+                    renderKeywords();
+                });
+                keywordList.appendChild(tag);
+            });
+        }
+
+        // 生成名称
+        function generateNames() {
+            if (keywords.length === 0) {
+                alert('请先添加关键词');
+                return;
+            }
+
+            const type = namingType.value;
+            const startTrack = parseInt(trackNumberInput.value) || 1;
+            let results = [];
+
+            keywords.forEach((keyword, index) => {
+                const trackNumber = startTrack + index;
+                const states = getStatesForType(type, keyword);
+                states.forEach(state => {
+                    let name = '';
+                    switch(type) {
+                        case 'basic':
+                            name = `${state}`;
+                            break;
+                        case 'highlight':
+                            name = `track${trackNumber}_${keyword}_${state}`;
+                            break;
+                        case 'scene':
+                            name = `${keyword}_${state}`;
+                            break;
+                        case 'ip':
+                            name = `${keyword}_${state}`;
+                            break;
+                        case 'tips':
+                            name = `track${trackNumber}_${keyword}_${state}`;
+                            break;
+                        case 'highlight_tips':
+                            name = `track${trackNumber}_${keyword}_${state}`;
+                            break;
+                    }
+                    results.push(name);
+                });
+            });
+
+            // 显示结果
+            resultDiv.textContent = results.join('\n');
+
+            // 保存到历史
+            const historyItem = {
+                timestamp: new Date().toLocaleString(),
+                type: type,
+                keywords: [...keywords],
+                results: [...results]
+            };
+            generationHistory.unshift(historyItem);
+            if (generationHistory.length > 10) generationHistory.pop(); // 限制历史记录数量
+            localStorage.setItem('spineNamingHistory', JSON.stringify(generationHistory));
+        }
+
+        // 复制结果
+        function copyToClipboard() {
+            const text = resultDiv.textContent;
+            if (!text) return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('复制成功！');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制');
+            });
+        }
+
+        // 保存结果
+        function saveToFile() {
+            const text = resultDiv.textContent;
+            if (!text) return;
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `spine_anim_names_${new Date().getTime()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 显示历史记录
+        function showHistory() {
+            if (generationHistory.length === 0) {
+                alert('暂无历史记录');
+                return;
+            }
+
+            let historyText = '生成历史:\n\n';
+            generationHistory.forEach((item, index) => {
+                historyText += `[${item.timestamp}] ${item.type}\n`;
+                historyText += `关键词: ${item.keywords.join(', ')}\n`;
+                historyText += `结果: ${item.results.slice(0, 3).join(', ')}${item.results.length > 3 ? '...' : ''}\n\n`;
+            });
+
+            alert(historyText);
+        }
+
+        // 清空关键词
+        function clearKeywords() {
+            keywords = [];
+            renderKeywords();
+        }
+
+        // 事件监听
+        addKeywordBtn.addEventListener('click', addKeyword);
+        generateBtn.addEventListener('click', generateNames);
+        clearBtn.addEventListener('click', clearKeywords);
+        copyBtn.addEventListener('click', copyToClipboard);
+        saveBtn.addEventListener('click', saveToFile);
+        historyBtn.addEventListener('click', showHistory);
+        namingType.addEventListener('change', updateExamples);
+        keywordInput.addEventListener('keypress', (e) => e.key === 'Enter' && addKeyword());
+
+        // 初始化
+        updateExamples();
+    </script>
+</body>
+</html>
